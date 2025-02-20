@@ -1,51 +1,48 @@
 const Header = (props) =>{
-  return props.course;
+  return <h1>{props.course.name}</h1>
 
 }
 
 const Content = (props) => {
   return (
     <div>
-     <p>{props.part1} {props.exercises1}</p>
-     <p>{props.part2} {props.exercises2}</p>
-     <p>{props.part3} {props.exercises3}</p>
+     <p>{props.course.course[0].name} <br></br> Exercises {props.course.course[0].exercises}</p>
+     <p>{props.course.course[1].name} <br></br> Exercises {props.course.course[1].exercises}</p>
+     <p>{props.course.course[2].name} <br></br> Exercises {props.course.course[2].exercises}</p>
     </div>
   );
 };
 
 const Total = (props) => {
-  const total = props.exercises1 + props.exercises2 + props.exercises3
-  return <p>Number of exercises {total} </p>
+  const total = props.course.course[0].exercises + props.course.course[1].exercises + props.course.course[2].exercises 
+  return <p>Total number of exercises is {total} </p>
 }
-const App = () =>{
-  const course = 'Half Stack application development'
-  const content = {part1 : 'Fundamentals of React',
-    part2 :'Using props to pass data',
-    part3 : 'State of a component'
+
+const App = () => {
+  const course = {
+    name: 'Half Stack application development',
+    course: [
+      {
+        name: 'Fundamentals of React',
+        exercises: 10
+      },
+      {
+        name: 'Using props to pass data',
+        exercises: 7
+      },
+      {
+        name: 'State of a component',
+        exercises: 14
+      }
+    ]
   }
-
-  const exercises1 = 10
-  const exercises2 = 7 
-  const exercises3 = 14
-
   return (
     <div>
       <Header course={course}/>
-      <Content 
-      part1 = {content.part1}
-      part2 = {content.part2}
-      part3 = {content.part3}
-      exercises1 = {exercises1}
-      exercises2 = {exercises2}
-      exercises3 = {exercises3}
-      />
-      <Total      
-       exercises1 = {exercises1}
-      exercises2 = {exercises2}
-      exercises3 = {exercises3}/>
+      <Content course={course}/>
+      <Total course={course}/>
     </div>
   )
 }
 
 export default App;
-
