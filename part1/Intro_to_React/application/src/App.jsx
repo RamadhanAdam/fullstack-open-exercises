@@ -1,20 +1,19 @@
-const Header = (props) =>{
-  return <h1>{props.course.name}</h1>
-
+const Header = ({course}) =>{
+  return <h1>{course.name}</h1>
 }
 
-const Content = (props) => {
+const Content = ({course}) => {
   return (
-    <div>
-     <p>{props.course.course[0].name} <br></br> Exercises {props.course.course[0].exercises}</p>
-     <p>{props.course.course[1].name} <br></br> Exercises {props.course.course[1].exercises}</p>
-     <p>{props.course.course[2].name} <br></br> Exercises {props.course.course[2].exercises}</p>
+    <div> 
+     <p>{course.course[0].name}  {course.course[0].exercises}</p>
+     <p>{course.course[1].name}  {course.course[1].exercises}</p>
+     <p>{course.course[2].name} {course.course[2].exercises}</p>
     </div>
   );
 };
 
-const Total = (props) => {
-  const total = props.course.course[0].exercises + props.course.course[1].exercises + props.course.course[2].exercises 
+const Total = ({course}) => {
+  const total = course.course[0].exercises + course.course[1].exercises + course.course[2].exercises 
   return <p>Total number of exercises is {total} </p>
 }
 
@@ -27,7 +26,7 @@ const App = () => {
         exercises: 10
       },
       {
-        name: 'Using props to pass data',
+        name: 'Using course to pass data',
         exercises: 7
       },
       {
