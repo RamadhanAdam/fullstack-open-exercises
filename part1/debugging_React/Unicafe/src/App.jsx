@@ -1,43 +1,26 @@
 import { useState } from 'react'
 
-//button component for rendering buttons and handling its events
+
 const Button = ({ onClick, text }) => (
   <button onClick={onClick}>
     {text}
   </button>
 )
 
-// creates a row for each statistics value
-const StatisticsLine = ({ text, value }) => {
+const Statistics = (props) => {
   return (
-    <tr>
-      <td> {text} </td>
-      <td>{value}</td>
-    </tr>
+  <div>
+    <h1>statistics</h1>
+    <p>good {props.good}</p>
+    <p>neutral {props.neutral}</p>
+    <p>bad {props.bad}</p>
+    <p>all {props.total}</p>
+    <p>average {props.avg}</p>
+    <p>percentage {props.percentage}%</p>
+  </div>)
 
-  )
 }
 
-//calculates statistics for rendering
-const Statistics = ({ good, neutral, bad, total, avg, percentage }) => {
-  return (
-    <div>
-      <table>
-        <tbody>
-          <StatisticsLine text="Good" value={good} />
-          <StatisticsLine text="Neutral" value={neutral} />
-          <StatisticsLine text="Bad" value={bad} />
-          <StatisticsLine text="All" value={total} />
-          <StatisticsLine text="Average" value={avg} />
-          <StatisticsLine text="Positive" value={`${percentage}%`} />
-        </tbody>
-      </table>
-
-    </div>
-  );
-};
-
-//the component for viewing
 const App = () => {
   // save clicks of each button to its own state
   const [good, setGood] = useState(0)
@@ -58,9 +41,9 @@ const App = () => {
     setBad(updateBad)
   }
 
-  const total = good + bad + neutral
-  const avg = total ? (good-bad)/total : 0;
-  const percentage = total  ? (good / total) * 100 : 0;
+  const total = (good + bad + neutral)
+  const avg = total === 0 ? 0 : (good * 1 + bad * -1 + neutral * 0) / total;
+  const percentage = total === 0 ? 0 : good / total * 100;
 
   return (
     <div>
@@ -68,19 +51,7 @@ const App = () => {
       <Button onClick={handleGood} text="good" />
       <Button onClick={handleNeutral} text="neutral" />
       <Button onClick={handleBad} text="bad" />
-      <h1>statistics</h1>
-      {total === 0 ? (
-        <p>No feedback given</p>
-      ) : (<Statistics
-        good={good}
-        bad={bad}
-        neutral={neutral}
-        total={total}
-        avg={avg}
-        percentage={percentage}
-      />
-      )}
-
+      <Statistics good={good} bad={bad} neutral={neutral} total={total} avg={avg} percentage={percentage} />
     </div >
 
   )
