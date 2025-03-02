@@ -19,3 +19,11 @@
 ### **Start the application:**
 - `cd`
 - `npm run dev`
+
+## **start the JSON Server without a separate installation 
+-` npx json-server --port portNumber db.json`
+
+## **install json-server as a development dependency (only used during development) 
+-` npm install json-server --save-dev`
+
+`http://chromewebstore.google.com/detail/jsonview/gmegofmjomhknnokphhckolhcffdaihd`
