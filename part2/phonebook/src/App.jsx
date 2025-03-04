@@ -1,24 +1,27 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios'
+import phonebookService from './services/phonebook'
 
 const Filter = ({ nameFilter, handleNameFilter }) => {
   return (<div>
     first shown with: <input value={nameFilter} onChange={handleNameFilter} />
   </div>)
 }
-const Numbers = ({ filteredPersons }) => {
+const Numbers = ({ filteredPersons, handleDeletedPerson }) => {
   return (
     <ul>
       {filteredPersons.map((person) => (
-        <li key={person.name}>
+        <li key={person.id}>
           {person.name} {person.number}
+          <button  onClick={() => handleDeletedPerson(person.id, person.name)}>Delete</button>
         </li>
       ))}
     </ul>
   )
 }
 
+
 const Persons = ({ handleSubmit, newNumber, newName, handleNumber, handleName }) => {
+
   return (
     <form onSubmit={handleSubmit}>
       <div>
@@ -54,20 +57,32 @@ const App = () => {
       alert(`${newName} ${newNumber} is already in the phonebook`);
     } else {
       // Add the new person to the phonebook
-      const newPerson = { name: newName, number: newNumber };
-      setPersons(persons.concat(newPerson));
-      setNewName('');
-      setNewNumber('');
+      const newPerson = {
+        name: newName,
+        number: newNumber,
+        id: String(++persons.length)
+      };
+
+      phonebookService
+        .createPerson(newPerson)
+        .then((response) => {
+          console.log(response.data)
+          setPersons(persons.concat(newPerson));
+          setNewName('');
+          setNewNumber('');
+        })
     }
   };
- //effect for fetching persons from database(json server)
-  useEffect(()=>{axios
-    .get('http://localhost:3001/persons')
-    .then((response) =>{
-     console.log("promise fulfilled")
-     setPersons(response.data)
-    }
-   )}, [])
+  //effect for fetching persons from database(json server)
+  useEffect(() => {
+    
+    phonebookService
+      .getAll()
+      .then((response) => {
+        setPersons(response.data)
+      }
+      )
+  }, [])
   // Event handler for name input
   const handleName = (e) => {
     const value = e.target.value.trim();
@@ -86,6 +101,20 @@ const App = () => {
     setNameFilter(value);
   };
 
+  const handleDeletedPerson = (id, name) => {
+    if (window.confirm(`Delete ${name}?`)) {
+      phonebookService
+        .deletePerson(id)
+        .then(() => {
+          setPersons(persons.filter(person => person.id !== id))
+        })
+        .catch((error) => {
+          alert(`Error: ${name} already deleted from server`);
+        })
+    } else {
+      console.log("Action canceled.");
+    }
+  }
   // Filtered persons based on the name filter
   const filteredPersons = nameFilter
     ? persons.filter((person) => person.name.toLowerCase().includes(nameFilter.toLowerCase()))
@@ -98,7 +127,7 @@ const App = () => {
       <h3>add new</h3>
       <Persons handleSubmit={handleSubmit} newNumber={newNumber} handleNumber={handleNumber} newName={newName} handleName={handleName} />
       <h2>Numbers</h2>
-      <Numbers filteredPersons={filteredPersons} />
+      <Numbers filteredPersons={filteredPersons} handleDeletedPerson={handleDeletedPerson} />
     </div>
   );
 };

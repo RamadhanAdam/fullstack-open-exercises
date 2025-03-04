@@ -27,3 +27,11 @@
 -` npm install json-server --save-dev`
 
 `http://chromewebstore.google.com/detail/jsonview/gmegofmjomhknnokphhckolhcffdaihd`
+
+Node js
+npm install
+npm install express
+node_modules ls
+npm update
+node --watch index.js
+  "dev": "node --watch index.js",
