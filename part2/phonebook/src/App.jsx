@@ -1,18 +1,20 @@
 import { useState, useEffect } from 'react';
 import phonebookService from './services/phonebook'
+import './Notification.css'; 
 
 const Filter = ({ nameFilter, handleNameFilter }) => {
   return (<div>
     first shown with: <input value={nameFilter} onChange={handleNameFilter} />
   </div>)
 }
+
 const Numbers = ({ filteredPersons, handleDeletedPerson }) => {
   return (
     <ul>
       {filteredPersons.map((person) => (
         <li key={person.id}>
           {person.name} {person.number}
-          <button  onClick={() => handleDeletedPerson(person.id, person.name)}>Delete</button>
+          <button onClick={() => handleDeletedPerson(person.id, person.name)}>Delete</button>
         </li>
       ))}
     </ul>
@@ -41,10 +43,10 @@ const App = () => {
   const [newName, setNewName] = useState('');  // State for controlling the form input element for name
   const [newNumber, setNewNumber] = useState(''); // State for controlling the form input element for number
   const [nameFilter, setNameFilter] = useState(''); // State for controlling the name filter input
+  const [Notification, setNotification] = useState(null); //State for success message
 
-  // Event handler for form submission
   const handleSubmit = (event) => {
-    event.preventDefault(); // Prevent default form submission behavior
+    event.preventDefault();
 
     // Check if the new name or number is empty
     if (newName.trim() === '' || newNumber.trim() === '') {
@@ -52,9 +54,47 @@ const App = () => {
       return;
     }
 
-    // Check for name or number duplication
-    if (persons.some((person) => person.name === newName || person.number === newNumber)) {
-      alert(`${newName} ${newNumber} is already in the phonebook`);
+    // Check if the name or number already exists
+    const existingPerson = persons.find((person) => person.name === newName);
+
+    if (existingPerson) {
+      if (existingPerson.number === newNumber) {
+        setNotification({type : 'error' , message : 'User exists!'})
+        setNotification({ type: 'success', message: `${newName} updated successfully.` });
+
+        setTimeout(() => {
+          setNotification(null);
+        }, 3000); 
+      }
+      else if (window.confirm(`${newName} is already in the phonebook, do you want to update the number?`)) {
+        // Update the phone number of the existing person
+        const updatedPerson = { ...existingPerson, number: newNumber };
+
+        phonebookService
+          .updatePerson(existingPerson.id, updatedPerson)
+            /* eslint-disable-next-line no-unused-vars */
+          .then((response) => {
+            setPersons(persons.map((person) =>
+              person.id !== existingPerson.id
+                ? person
+                : updatedPerson
+            ));
+            setNewName('');
+            setNewNumber('');
+            setNotification({ type: 'success', message: `${newName} updated successfully.` });
+
+            setTimeout(() => {
+              setNotification(null);
+            }, 3000); // Clear notification after 3 seconds
+          })
+          .catch((error) => {
+            setNotification({ type: 'error', message: `Error: ${error.response.data.error}` });
+
+            setTimeout(() => {
+              setNotification(null);
+            }, 5000); // Show error message for 5 seconds
+          });
+      }
     } else {
       // Add the new person to the phonebook
       const newPerson = {
@@ -65,17 +105,31 @@ const App = () => {
 
       phonebookService
         .createPerson(newPerson)
+          /* eslint-disable-next-line no-unused-vars */
         .then((response) => {
-          console.log(response.data)
           setPersons(persons.concat(newPerson));
           setNewName('');
           setNewNumber('');
+          setNotification({ type: 'success', message: `${newName} added successfully.` });
+
+          setTimeout(() => {
+            setNotification(null);
+          }, 3000); 
         })
+        .catch((error) => {
+          setNotification({ type: 'error', message: `Error: ${error.response.data.error}` });
+
+          setTimeout(() => {
+            setNotification(null);
+          }, 5000); 
+        });
     }
   };
+
+
   //effect for fetching persons from database(json server)
   useEffect(() => {
-    
+
     phonebookService
       .getAll()
       .then((response) => {
@@ -108,6 +162,7 @@ const App = () => {
         .then(() => {
           setPersons(persons.filter(person => person.id !== id))
         })
+        /* eslint-disable-next-line no-unused-vars */
         .catch((error) => {
           alert(`Error: ${name} already deleted from server`);
         })
@@ -122,6 +177,9 @@ const App = () => {
 
   return (
     <div>
+      {Notification && (
+        <div className={`notification ${Notification.type}`}> {Notification.message} </div>
+      )}
       <h2>Phonebook</h2>
       <Filter nameFilter={nameFilter} handleNameFilter={handleNameFilter} />
       <h3>add new</h3>
